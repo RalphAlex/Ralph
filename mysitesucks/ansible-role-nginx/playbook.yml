@@ -1,0 +1,28 @@
+---
+- hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Install nginx via amazon linux
+      command: 'amazon-linux-extras install nginx1'
+
+    - name: Apply Nginx template
+      copy:
+        src: files/nginx.conf.j2
+        dest: /etc/nginx/sites-available/default/nginx.conf
+        mode: preserve
+
+    - name: Enable new site
+      file:
+        src: /etc/nginx/sites-available/default/nginx.conf
+        dest: /etc/nginx/sites-enabled/default/nginx.conf
+        state: link
+      notify: Restart Nginx
+
+
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
